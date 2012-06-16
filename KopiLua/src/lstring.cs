@@ -120,6 +120,7 @@ namespace KopiLua
 			u.uv.metatable = null;
 			u.uv.env = e;
 			u.user_data = new byte[s];
+            AddTotalBytes(L, GetUnmanagedSize(typeof(Udata)) + sizeudata(u));
 			/* chain it on udata list (after main thread) */
 			u.uv.next = G(L).mainthread.next;
 			G(L).mainthread.next = obj2gco(u);
@@ -131,7 +132,7 @@ namespace KopiLua
 			Udata u = new Udata();
 			u.uv.marked = luaC_white(G(L));  /* is not finalized */
 			u.uv.tt = LUA_TUSERDATA;
-			u.uv.len = 0;
+			u.uv.len = 0; /* gfoot: not sizeof(t)? */
 			u.uv.metatable = null;
 			u.uv.env = e;
 			u.user_data = luaM_realloc_(L, t);
