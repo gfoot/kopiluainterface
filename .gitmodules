@@ -1,0 +1,3 @@
+[submodule "KopiLua"]
+	path = KopiLua
+	url = git@github.com:gfoot/kopilua.git
