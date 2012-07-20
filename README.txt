@@ -2,7 +2,7 @@ KopiLuaInteface {version} ({date})
 ==================================
 
 
-This is a combination of LuaInterface 2.0.1 with KopiLua 0.1.  The idea is
+This is a combination of LuaInterface 2.0.3 (Using https://github.com/stevedonovan/MonoLuaInterface) with KopiLua 0.1.  The idea is
 to provide a pure C# Lua suite for maximum portability in environments like
 Unity and XNA.
 
@@ -26,18 +26,6 @@ suitable for use in Unity's web player.
 
 KopiLua itself had some bugs - I remember specifically some issues with
 userdata, and some lua_assert calls had lost the '!' from their expressions.
-
-
-Out of date
------------
-
-Note that LuaInterface is now up to version 2.0.3, so this snapshot is out
-of date.  KopiLua has also been added to github and extended there by a
-third party, and it's possible that the most recent version there would be a
-better base than what I have used so far.
-
-I will try to consolidate my changes better, and see if they can be made
-less intrusive, so they can more easily be applied to newer versions.
 
 
 Building
