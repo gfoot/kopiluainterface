@@ -42,7 +42,16 @@
     <Compile Include="src\CheckType.cs" />
     <Compile Include="src\GenerateEventAssembly.cs" />
     <Compile Include="src\Lua.cs" />
+    <Compile Include="src\LuaBase.cs" />
     <Compile Include="src\LuaException.cs" />
+    <Compile Include="src\LuaFunction.cs" />
+    <Compile Include="src\LuaGlobalAttribute.cs" />
+    <Compile Include="src\LuaHideAttribute.cs" />
+    <Compile Include="src\LuaNetRunner.cs" />
+    <Compile Include="src\LuaRegistrationHelper.cs" />
+    <Compile Include="src\LuaScriptException.cs" />
+    <Compile Include="src\LuaTable.cs" />
+    <Compile Include="src\LuaUserData.cs" />
     <Compile Include="src\Metatables.cs" />
     <Compile Include="src\MethodWrapper.cs" />
     <Compile Include="src\ObjectTranslator.cs" />
