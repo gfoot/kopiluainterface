@@ -1,3 +1,5 @@
+using KopiLuaDll;
+
 namespace LuaInterface 
 {
 	using System;
@@ -6,9 +8,8 @@ namespace LuaInterface
 	using System.Reflection;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using Lua511;
 
-	/*
+    /*
 	 * Cached method
 	 */
 	struct MethodCache 
@@ -106,7 +107,7 @@ namespace LuaInterface
 			object targetObject=target;
 			bool failedCall=true;
 			int nReturnValues=0;
-			if(!LuaDLL.lua_checkstack(luaState,5))
+			if(!LuaDll.lua_checkstack(luaState,5))
 				throw new LuaException("Lua stack overflow");
 
             bool isStatic = (bindingType & BindingFlags.Static) == BindingFlags.Static;
@@ -123,11 +124,11 @@ namespace LuaInterface
 				if(lastCalledMethod.cachedMethod!=null) // Cached?
 				{
                     int numStackToSkip = isStatic ? 0 : 1; // If this is an instance invoe we will have an extra arg on the stack for the targetObject
-                    int numArgsPassed = LuaDLL.lua_gettop(luaState) - numStackToSkip;   
+                    int numArgsPassed = LuaDll.lua_gettop(luaState) - numStackToSkip;   
 
 					if(numArgsPassed == lastCalledMethod.argTypes.Length) // No. of args match?
 					{
-						if(!LuaDLL.lua_checkstack(luaState,lastCalledMethod.outList.Length+6))
+						if(!LuaDll.lua_checkstack(luaState,lastCalledMethod.outList.Length+6))
 							throw new LuaException("Lua stack overflow");
 						try 
 						{
@@ -137,7 +138,7 @@ namespace LuaInterface
 									lastCalledMethod.argTypes[i].extractValue(luaState, i + 1 + numStackToSkip);
 
 								if(lastCalledMethod.args[lastCalledMethod.argTypes[i].index]==null &&
-                                    !LuaDLL.lua_isnil(luaState, i + 1 + numStackToSkip)) 
+                                    !LuaDll.lua_isnil(luaState, i + 1 + numStackToSkip)) 
 								{
 									throw new LuaException("argument number "+(i+1)+" is invalid"); 
 								}
@@ -180,11 +181,11 @@ namespace LuaInterface
                         if (targetObject == null)
                         {
                             translator.throwError(luaState, String.Format("instance method '{0}' requires a non null target object", methodName));
-                            LuaDLL.lua_pushnil(luaState);
+                            LuaDll.lua_pushnil(luaState);
                             return 1;
                         }
 
-                        LuaDLL.lua_remove(luaState, 1); // Pops the receiver
+                        LuaDll.lua_remove(luaState, 1); // Pops the receiver
                     }
 
 					bool hasMatch=false;
@@ -210,7 +211,7 @@ namespace LuaInterface
                             : ("invalid arguments to method: " + candidateName);
 
 						translator.throwError(luaState, msg); 
-						LuaDLL.lua_pushnil(luaState);
+						LuaDll.lua_pushnil(luaState);
 						return 1;
 					}
 				}
@@ -220,19 +221,19 @@ namespace LuaInterface
 				if(!methodToCall.IsStatic && !methodToCall.IsConstructor && targetObject==null) 
 				{
 					targetObject=extractTarget(luaState,1);
-					LuaDLL.lua_remove(luaState,1); // Pops the receiver
+					LuaDll.lua_remove(luaState,1); // Pops the receiver
 				}
 				if(!translator.matchParameters(luaState,methodToCall,ref lastCalledMethod)) 
 				{
 					translator.throwError(luaState,"invalid arguments to method call"); 
-					LuaDLL.lua_pushnil(luaState);
+					LuaDll.lua_pushnil(luaState);
 					return 1;
 				}
 			}
 
 			if(failedCall) 
 			{
-				if(!LuaDLL.lua_checkstack(luaState,lastCalledMethod.outList.Length+6))
+				if(!LuaDll.lua_checkstack(luaState,lastCalledMethod.outList.Length+6))
 					throw new LuaException("Lua stack overflow");
 				try 
 				{

@@ -3,3 +3,4 @@
 *.suo
 */*.csproj.user
 
+_ReSharper.KLI

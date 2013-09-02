@@ -1,14 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-//using namespace System::Runtime::InteropServices;
-//using namespace System::Reflection;
-//using namespace System::Collections;
-//using namespace System::Security;
+﻿using KopiLua;
 
-using KopiLua;
-
-namespace Lua511 // or KopiLuaDll?
+namespace KopiLuaDll
 {
 	/*
 	 * Lua types for the API, returned by lua_type function
@@ -77,7 +69,7 @@ namespace Lua511 // or KopiLuaDll?
 	// To fix the strings:
 	// http://support.microsoft.com/kb/311259
 
-	public class LuaDLL 
+	public class LuaDll 
 	{
         // Not sure of the purpose of this, but I'm keeping it -kevinh
         static object tag = 0;

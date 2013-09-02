@@ -1504,7 +1504,7 @@ namespace LuaInterface.Tests
 
 
 			Console.WriteLine("Reading test.lua file...");
-			l.DoFile("test.lua");
+			l.DoFile("../../../test/test.lua");
 			double width=l.GetNumber("width");
 			double height=l.GetNumber("height");
 			string message=l.GetString("message");
