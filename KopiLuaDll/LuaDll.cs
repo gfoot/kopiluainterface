@@ -66,9 +66,6 @@ namespace KopiLuaDll
 #endif
 
 
-	// To fix the strings:
-	// http://support.microsoft.com/kb/311259
-
 	public class LuaDll 
 	{
         // Not sure of the purpose of this, but I'm keeping it -kevinh
@@ -120,7 +117,6 @@ namespace KopiLuaDll
 		// steffenj: END additional Lua API functions new in Lua 5.1
 #endif
 
-		// steffenj: BEGIN Lua 5.1.1 API change (lua_open replaced by luaL_newstate)
 		public static Lua.lua_State luaL_newstate()
 		{
 			return Lua.luaL_newstate();
@@ -129,7 +125,6 @@ namespace KopiLuaDll
 		// Not yet wrapped
 		// static void lua_close(Lua.lua_State luaState);
 
-		// steffenj: BEGIN Lua 5.1.1 API change (new function luaL_openlibs)
 		public static void luaL_openlibs(Lua.lua_State luaState)
 		{
 			Lua.luaL_openlibs(luaState);
@@ -138,8 +133,6 @@ namespace KopiLuaDll
 		// Not yet wrapped
 		// static int lua_objlen(Lua.lua_State luaState, int stackPos);
 
-		// steffenj: END Lua 5.1.1 API change (lua_strlen is now lua_objlen)
-		// steffenj: BEGIN Lua 5.1.1 API change (lua_dostring is now a macro luaL_dostring)
 		public static int luaL_loadstring(Lua.lua_State luaState, string chunk)
 		{
 			return Lua.luaL_loadstring(luaState, chunk);
@@ -160,8 +153,6 @@ namespace KopiLuaDll
 			return luaL_dostring(luaState, chunk);
 		}
 
-		// steffenj: END Lua 5.1.1 API change (lua_dostring is now a macro luaL_dostring)
-		// steffenj: BEGIN Lua 5.1.1 API change (lua_newtable is gone, lua_createtable is new)
 		public static void lua_createtable(Lua.lua_State luaState, int narr, int nrec)
 		{
 			Lua.lua_createtable(luaState, narr, nrec);
@@ -172,8 +163,6 @@ namespace KopiLuaDll
 			lua_createtable(luaState, 0, 0);
 		}
 
-		// steffenj: END Lua 5.1.1 API change (lua_newtable is gone, lua_createtable is new)
-		// steffenj: BEGIN Lua 5.1.1 API change (lua_dofile now in LuaLib as luaL_dofile macro)
 		public static int luaL_dofile(Lua.lua_State luaState, string fileName)
 		{
 			int result = Lua.luaL_loadfile(luaState, fileName);
@@ -183,7 +172,6 @@ namespace KopiLuaDll
 			return Lua.lua_pcall(luaState, 0, -1, 0);
 		}
 
-		// steffenj: END Lua 5.1.1 API change (lua_dofile now in LuaLib as luaL_dofile)
 		public static void lua_getglobal(Lua.lua_State luaState, string name) 
 		{
 			lua_pushstring(luaState, name);
@@ -397,7 +385,6 @@ namespace KopiLuaDll
 
 		public static string lua_tostring(Lua.lua_State luaState, int index)
 		{
-#if true
 			// FIXME use the same format string as lua i.e. LUA_NUMBER_FMT
 			LuaTypes t = lua_type(luaState,index);
 			
@@ -412,19 +399,6 @@ namespace KopiLuaDll
 				return null;			// treat lua nulls to as C# nulls
 			else
 				return "0";	// Because luaV_tostring does this
-#else
-			
-
-			size_t strlen;
-
-			// Note!  This method will _change_ the representation of the object on the stack to a string.
-			// We do not want this behavior so we do the conversion ourselves
-			const char *str = Lua.lua_tolstring(luaState, index, &strlen);
-            if (str)
-				return Marshal::PtrToStringAnsi(IntPtr((char *) str), strlen);
-            else
-                return nullptr;            // treat lua nulls to as C# nulls
-#endif
 		}
 
         public static void lua_atpanic(Lua.lua_State luaState, Lua.lua_CFunction panicf)
@@ -432,14 +406,6 @@ namespace KopiLuaDll
 			Lua.lua_atpanic(luaState, (Lua.lua_CFunction)panicf);
 		}
 
-#if false
-		// no longer needed - all our functions are now stdcall calling convention
-		public static int stdcall_closure(lua_State *L) {
-		  lua_CFunction fn = (lua_CFunction)lua_touserdata(L, lua_upvalueindex(1));
-		  return fn(L);
-		}
-#endif
-		
 		public static void lua_pushstdcallcfunction(Lua.lua_State luaState, Lua.lua_CFunction function)
 		{
 			Lua.lua_pushcfunction(luaState, function);
@@ -492,7 +458,6 @@ namespace KopiLuaDll
 		}
 
 
-		// steffenj: BEGIN Lua 5.1.1 API change (luaL_getmetatable is now a macro using lua_getfield)
 		public static void lua_getfield(Lua.lua_State luaState, int stackPos, string meta)
 		{
 			Lua.lua_getfield(luaState, stackPos, meta);
