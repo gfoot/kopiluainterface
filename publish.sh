@@ -22,7 +22,9 @@ ls -l $files
 cp -f $files $target_dir
 
 echo "Generating MDB files..."
-pdb2mdb="/c/Program Files (x86)/Unity/Editor/Data/Mono/lib/mono/2.0/pdb2mdb.exe"
+unityeditorexe=`cat "/proc/registry/HKEY_CURRENT_USER/Software/Unity Technologies/Unity Editor 3.x/Location/@"`
+unityeditordir=`cygpath -a "$unityeditorexe"/..`
+pdb2mdb="${unityeditordir}Data/MonoBleedingEdge/lib/mono/4.0/pdb2mdb.exe"
 cd "$target_dir"
 for module in $modules; do
 	echo $module.dll
