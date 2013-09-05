@@ -228,6 +228,14 @@ namespace LuaInterface
 
         internal Type FindType(string className)
         {
+            if (className.StartsWith("out ") || className.StartsWith("ref "))
+            {
+                var type = FindType(className.Substring(4));
+                if (type != null)
+                    return type.MakeByRefType();
+                return null;
+            }
+
             foreach(Assembly assembly in assemblies)
             {
                 Type klass=assembly.GetType(className);
@@ -355,7 +363,12 @@ namespace LuaInterface
             string methodName=LuaDLL.lua_tostring(luaState,2);
             Type[] signature=new Type[LuaDLL.lua_gettop(luaState)-2];
             for(int i=0;i<signature.Length;i++)
-                signature[i]=FindType(LuaDLL.lua_tostring(luaState,i+3));
+            {
+                string typeName = LuaDLL.lua_tostring(luaState,i+3); 
+                signature[i]=FindType(typeName);
+                if (signature[i] == null)
+                    throwError(luaState, string.Format("get_method_bysig: type not found: {0}", typeName));
+            }
             try
             {
                 //CP: Added ignore case
@@ -389,7 +402,12 @@ namespace LuaInterface
             }
             Type[] signature=new Type[LuaDLL.lua_gettop(luaState)-1];
             for(int i=0;i<signature.Length;i++)
-                signature[i]=FindType(LuaDLL.lua_tostring(luaState,i+2));
+            {
+                string typeName = LuaDLL.lua_tostring(luaState,i+2); 
+                signature[i]=FindType(typeName);
+                if (signature[i] == null)
+                    throwError(luaState, string.Format("get_constructor_bysig: type not found: {0}", typeName));
+            }
             try
             {
                 ConstructorInfo constructor=klass.UnderlyingSystemType.GetConstructor(signature);
