@@ -223,6 +223,14 @@ namespace LuaInterface
         
         internal Type FindType(string className)
         {
+            if (className.StartsWith("out ") || className.StartsWith("ref "))
+            {
+                var type = FindType(className.Substring(4));
+                if (type != null)
+                    return type.MakeByRefType();
+                return null;
+            }
+
 			foreach(Assembly assembly in assemblies) 
 			{
 				Type klass=assembly.GetType(className);
@@ -349,9 +357,14 @@ namespace LuaInterface
 			}
 			string methodName=LuaDll.lua_tostring(luaState,2);
 			Type[] signature=new Type[LuaDll.lua_gettop(luaState)-2];
-			for(int i=0;i<signature.Length;i++)
-				signature[i]=FindType(LuaDll.lua_tostring(luaState,i+3));
-			try 
+            for (int i = 0; i < signature.Length; i++)
+            {
+                string typeName = LuaDll.lua_tostring(luaState, i + 3);
+                signature[i] = FindType(typeName);
+                if (signature[i] == null)
+                    throwError(luaState, string.Format("Type not found: {0}", typeName));
+            }
+		    try 
 			{
 				MethodInfo method=klass.GetMethod(methodName,BindingFlags.Public | BindingFlags.Static |
                     BindingFlags.Instance | BindingFlags.FlattenHierarchy,null,signature,null);
