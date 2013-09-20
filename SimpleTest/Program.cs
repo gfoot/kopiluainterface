@@ -84,6 +84,7 @@ namespace SimpleTest
                 Console.WriteLine("{0}", result);
             }
 
+            Console.WriteLine("Finished, press Enter to quit");
             Console.ReadLine();
         }
 
