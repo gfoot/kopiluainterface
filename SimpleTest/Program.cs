@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using LuaInterface;
 
 namespace SimpleTest
@@ -107,6 +105,7 @@ namespace SimpleTest
                 Console.WriteLine("{0}", result);
             }
 
+            Console.WriteLine("Finished, press Enter to quit");
             Console.ReadLine();
         }
 
