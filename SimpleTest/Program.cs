@@ -6,7 +6,7 @@ using LuaInterface;
 
 namespace SimpleTest
 {
-    class Foo
+    public class Foo
     {
         public double m = 3;
 
@@ -14,9 +14,15 @@ namespace SimpleTest
         {
             return x * m;
         }
+
+        public static bool OutMethod(Foo foo, out Bar bar)
+        {
+            bar = new Bar() { x = foo.m };
+            return true;
+        }
     };
 
-    class Bar
+    public class Bar
     {
         public double x;
     };
@@ -29,6 +35,13 @@ namespace SimpleTest
             lua["x"] = 3;
             lua.DoString("y=x");
             Console.WriteLine("y={0}", lua["y"]);
+
+            {
+                lua.DoString("luanet.load_assembly('SimpleTest')");
+                lua.DoString("Foo = luanet.import_type('SimpleTest.Foo')");
+                lua.DoString("method = luanet.get_method_bysig(Foo, 'OutMethod', 'SimpleTest.Foo', 'out SimpleTest.Bar')");
+                Console.WriteLine(lua["method"]);
+            }
 
             {
                 object[] retVals = lua.DoString("return 1,'hello'");
