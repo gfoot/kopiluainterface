@@ -61,6 +61,10 @@
     <None Include="app.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\KopiLuaDll\KopiLuaDll.csproj">
+      <Project>{A9659B55-727E-454F-B32D-E6C337031939}</Project>
+      <Name>KopiLuaDll</Name>
+    </ProjectReference>
     <ProjectReference Include="..\KopiLuaInterface\KopiLuaInterface.csproj">
       <Project>{976CA064-F07C-44C4-AC50-CF834EAD0BCA}</Project>
       <Name>KopiLuaInterface</Name>
