@@ -25,7 +25,31 @@ namespace SimpleTest
     {
         static void Main(string[] args)
         {
-            Lua lua = new Lua();
+            var lua = new Lua();
+
+            Console.WriteLine("LuaTable disposal stress test...");
+            {
+                lua.DoString("a={b={c=0}}");
+                for (var i = 0; i < 100000; ++i)
+                {
+                    // Note that we don't even need the object type to be LuaTable - c is an int.  
+                    // Simply indexing through tables in the string expression was enough to cause 
+                    // the bug...
+                    var z = lua["a.b.c"];
+                }
+            }
+            Console.WriteLine("    ... passed");
+
+            Console.WriteLine("LuaFunction disposal stress test...");
+            {
+                lua.DoString("function func() return func end");
+                for (var i = 0; i < 100000; ++i)
+                {
+                    var f = lua["func"];
+                }
+            }
+            Console.WriteLine("    ... passed");
+
             lua["x"] = 3;
             lua.DoString("y=x");
             Console.WriteLine("y={0}", lua["y"]);

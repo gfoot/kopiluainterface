@@ -1,4 +1,5 @@
 
+using System.Collections.Generic;
 using KopiLuaDll;
 
 namespace LuaInterface 
@@ -564,6 +565,74 @@ namespace LuaInterface
             translator.pushFunction(luaState,function);
         }
 
+        /// <summary>
+        /// Dictionary mapping integer reference codes stored in the Lua interpreter's registry to the C# objects 
+        /// that own the references, using weak references so we can tell when the C# object no longer exists.
+        /// </summary>
+        private readonly Dictionary<int, WeakReference> _luaRefToCsObj = new Dictionary<int, WeakReference>();
+
+        /// <summary>
+        /// Internally-used list of known-dead lua reference numbers
+        /// </summary>
+        private readonly List<int> _deadLuaRefs = new List<int>();
+
+        /// <summary>
+        /// Granularity for garbage-collection of lua references
+        /// </summary>
+        private const int LuaRefGcGranularity = 1000;
+
+        /// <summary>
+        /// Number of Lua references that must be allocated before we next try to garbage-collect stale references
+        /// </summary>
+        private int _nextGcNumRefs = LuaRefGcGranularity;
+
+        /// <summary>
+        /// Register a new Lua reference and the associated C# object
+        /// </summary>
+        public void AddLuaRef(int luaRef, object csObject)
+        {
+            CollectGarbage();
+            _luaRefToCsObj[luaRef] = new WeakReference(csObject);
+        }
+
+        /// <summary>
+        /// Consider garbage-collecting stale Lua references at this point.  We only go ahead if enough Lua 
+        /// references have been allocated since the last collection - the overhead in the interpreter per 
+        /// reference is very small so we can wait quite a long time before worrying that most of the references
+        /// are stale.
+        /// </summary>
+        private void CollectGarbage()
+        {
+            // Reduce the reference count target if the actual number of references has somehow decreased
+            if (_luaRefToCsObj.Count < _nextGcNumRefs - LuaRefGcGranularity)
+                _nextGcNumRefs = _luaRefToCsObj.Count + LuaRefGcGranularity;
+
+            // Don't collect now if we haven't yet reached the reference count target
+            if (_luaRefToCsObj.Count < _nextGcNumRefs)
+                return;
+
+            // Gather the list of dead refs
+            _deadLuaRefs.Clear();
+            foreach (var luaRef in _luaRefToCsObj.Keys)
+            {
+                if (!_luaRefToCsObj[luaRef].IsAlive)
+                {
+                    _deadLuaRefs.Add(luaRef);
+                }
+            }
+
+            // Dispose the dead refs and free the entries in _luaRefToCsObj
+            foreach (var luaRef in _deadLuaRefs)
+            {
+                dispose(luaRef);
+                _luaRefToCsObj.Remove(luaRef);
+            }
+            _deadLuaRefs.Clear();
+
+            // Set the reference count target for the next collection
+            _nextGcNumRefs = _luaRefToCsObj.Count + LuaRefGcGranularity;
+        }
+
         #region IDisposable Members
 
         public virtual void Dispose()
@@ -596,10 +665,7 @@ namespace LuaInterface
 		{
 			this.reference=reference;
 			this.interpreter=interpreter;
-		}
-		~LuaTable() 
-		{
-			interpreter.dispose(reference);
+		    interpreter.AddLuaRef(reference, this);
 		}
 		/*
 		 * Indexer for string fields of the table
@@ -701,6 +767,8 @@ namespace LuaInterface
 			this.reference=reference;
             this.function=null;
 			this.interpreter=interpreter;
+
+		    interpreter.AddLuaRef(reference, this);
 		}
         
 		public LuaFunction(KopiLua.Lua.lua_CFunction function, Lua interpreter) 
@@ -710,11 +778,6 @@ namespace LuaInterface
 			this.interpreter=interpreter;
 		}
 
-		~LuaFunction() 
-		{
-            if(reference!=0)
-			    interpreter.dispose(reference);
-		}
 		/*
 		 * Calls the function casting return values to the types
 		 * in returnTypes
@@ -774,10 +837,7 @@ namespace LuaInterface
 		{
 			this.reference=reference;
 			this.interpreter=interpreter;
-		}
-		~LuaUserData() 
-		{
-			interpreter.dispose(reference);
+		    interpreter.AddLuaRef(reference, this);
 		}
 		/*
 		 * Indexer for string fields of the userdata
