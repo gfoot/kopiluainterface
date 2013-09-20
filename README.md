@@ -47,6 +47,14 @@ make it work with KopiLua - issues like the distinction between a C function
 and a C# function being redundant, and namespacing changes.  I also disabled 
 some code that's not suitable for use in Unity's web player.
 
+LuaInterface had a nasty finalizer bug that was worked around upstream by
+making various classes disposable, and requiring the user to actually dispose
+them.  I fixed that a different way, which still removes the finalizers but
+doesn't require users to control the lifetimes.
+
+I've also extended luanet.get_method_bysig to support methods with out and ref
+arguments.
+
 KopiLua itself had some bugs - I remember specifically some issues with
 userdata, and some lua_assert calls had lost the '!' from their expressions.
 
